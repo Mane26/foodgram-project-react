@@ -22,6 +22,7 @@ from .serializers import (IngredientSerializer, RecipeReadSerializer,
 
 now = timezone.now()
 
+
 class IngredientViewSet(ReadOnlyModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
