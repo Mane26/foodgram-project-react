@@ -83,7 +83,7 @@ jobs:
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USER }}
-          key: ${{ secrets.SSH_KEY }}
+          privateKey: ${{ secrets.PRIVATE_KEY }}
           passphrase: ${{ secrets.PASSPHRASE }}
           script: |
             sudo rm -f .env        
