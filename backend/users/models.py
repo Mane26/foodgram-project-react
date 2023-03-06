@@ -1,19 +1,35 @@
 from django.contrib.auth.models import AbstractUser
+from django.core.validators import RegexValidator
 from django.db import models
 from django.db.models import UniqueConstraint
 
 
 class User(AbstractUser):
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = [
-        'username',
-        'first_name',
-        'last_name',
-    ]
+    """Класс пользователей."""
+
     email = models.EmailField(
         'email address',
         max_length=254,
         unique=True,
+        verbose_name='Email',
+    )
+    username = models.CharField(
+        max_length=150,
+        verbose_name='Имя пользователя',
+        unique=True,
+        db_index=True,
+        validators=[RegexValidator(
+            regex=r'^[\w.@+-]+$',
+            message='Имя пользователя содержит недопустимый символ'
+        )]
+    )
+    first_name = models.CharField(
+        max_length=150,
+        verbose_name='Имя'
+    )
+    last_name = models.CharField(
+        max_length=150,
+        verbose_name='Фамилия'
     )
 
     class Meta:
@@ -26,6 +42,8 @@ class User(AbstractUser):
 
 
 class Subscribe(models.Model):
+    """Класс подписчиков и автора."""
+
     user = models.ForeignKey(
         User,
         related_name='subscriber',

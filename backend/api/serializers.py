@@ -16,15 +16,14 @@ User = get_user_model()
 
 
 class CustomUserCreateSerializer(UserCreateSerializer):
+    """Создаем объект класса User."""
     class Meta:
         model = User
-        fields = tuple(User.REQUIRED_FIELDS) + (
-            User.USERNAME_FIELD,
-            'password',
-        )
+        fields = ('email', 'username', 'first_name', 'last_name', 'password')
 
 
 class CustomUserSerializer(UserSerializer):
+    """Модель User."""
     is_subscribed = SerializerMethodField(read_only=True)
 
     class Meta:

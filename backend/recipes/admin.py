@@ -7,6 +7,8 @@ from .models import (Favourite, Ingredient, IngredientInRecipe, Recipe,
 
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
+    """Настройка раздела Recipe"""
+
     list_display = ('name', 'id', 'author', 'added_in_favorites')
     readonly_fields = ('added_in_favorites',)
     list_filter = ('author', 'name', 'tags',)
@@ -18,13 +20,20 @@ class RecipeAdmin(admin.ModelAdmin):
 
 @admin.register(Ingredient)
 class IngredientAdmin(admin.ModelAdmin):
+    """
+    Настройка раздела ингредиентов в классе RecipeAdmin.
+    """
+
     list_display = ('name', 'measurement_unit',)
     list_filter = ('name',)
+    search_fields = ('name',)
 
 
-@admin.register(Tag)
-class TagAdmin(admin.ModelAdmin):
-    list_display = ('name', 'color', 'slug',)
+@admin.register(Favourite)
+class FavouriteAdmin(admin.ModelAdmin):
+    """Настройки раздела избранное"""
+
+    list_display = ('user', 'recipe',)
 
 
 @admin.register(ShoppingCart)
@@ -32,11 +41,16 @@ class ShoppingCartAdmin(admin.ModelAdmin):
     list_display = ('user', 'recipe',)
 
 
-@admin.register(Favourite)
-class FavouriteAdmin(admin.ModelAdmin):
-    list_display = ('user', 'recipe',)
-
-
 @admin.register(IngredientInRecipe)
 class IngredientInRecipe(admin.ModelAdmin):
-    list_display = ('recipe', 'ingredient', 'amount',)
+    """Настройки соответствия ингредиентов и рецепта"""
+
+    list_display = ('ingredient', 'recipe', 'amount',)
+
+
+@admin.register(Tag)
+class TagAdmin(admin.ModelAdmin):
+    """Настройки раздела тегов"""
+
+    list_display = ('name', 'color', 'slug',)
+    search_fields = ('name',)

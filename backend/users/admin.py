@@ -6,6 +6,8 @@ from .models import Subscribe, User
 
 @admin.register(User)
 class UserAdmin(UserAdmin):
+    """Настройка раздела пользователей."""
+
     list_display = (
         'username',
         'id',
@@ -14,6 +16,7 @@ class UserAdmin(UserAdmin):
         'last_name',
     )
     list_filter = ('email', 'first_name')
+    search_fields = ('username', 'email')
 
 
 @admin.register(Subscribe)

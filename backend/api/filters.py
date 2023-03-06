@@ -5,7 +5,12 @@ from recipes.models import Ingredient, Recipe, Tag
 User = get_user_model()
 
 
+FILTER_USER = {'favorites': 'favorites__user',
+               'shop_list': 'shop_list__user'}
+
+
 class IngredientFilter(FilterSet):
+    """Поиск по названию ингредиента."""
     name = filters.CharFilter(lookup_expr='startswith')
 
     class Meta:
@@ -14,6 +19,7 @@ class IngredientFilter(FilterSet):
 
 
 class RecipeFilter(FilterSet):
+    """Фильтр для рецептов."""
     tags = filters.ModelMultipleChoiceFilter(
         field_name='tags__slug',
         to_field_name='slug',
@@ -26,16 +32,15 @@ class RecipeFilter(FilterSet):
 
     class Meta:
         model = Recipe
-        fields = ('tags', 'author',)
+        fields = ('tags', 'author', 'is_favorited', 'is_in_shopping_cart')
+
+    def _get_queryset(self, queryset, name, value, model):
+        if value:
+            return queryset.filter(**{FILTER_USER[model]: self.request.user})
+        return queryset
 
     def filter_is_favorited(self, queryset, name, value):
-        user = self.request.user
-        if value and not user.is_anonymous:
-            return queryset.filter(favorites__user=user)
-        return queryset
+        return self._get_queryset(queryset, name, value, 'favorites')
 
     def filter_is_in_shopping_cart(self, queryset, name, value):
-        user = self.request.user
-        if value and not user.is_anonymous:
-            return queryset.filter(shopping_cart__user=user)
-        return queryset
+        return self._get_queryset(queryset, name, value, 'shop_list')

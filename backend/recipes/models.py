@@ -1,5 +1,5 @@
 from django.contrib.auth import get_user_model
-from django.core.validators import MinValueValidator, RegexValidator
+from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import UniqueConstraint
 
@@ -7,8 +7,15 @@ User = get_user_model()
 
 
 class Ingredient(models.Model):
-    name = models.CharField('Название', max_length=200)
-    measurement_unit = models.CharField('Единица измерения', max_length=200)
+    """Класс ингредиентов."""
+
+    name = models.CharField(
+        max_length=200,
+        verbose_name='Название'
+    )
+    measurement_unit = models.CharField(
+        'Единица измерения', max_length=200
+    )
 
     class Meta:
         verbose_name = 'Ингредиент'
@@ -20,19 +27,21 @@ class Ingredient(models.Model):
 
 
 class Tag(models.Model):
-    name = models.CharField('Название', unique=True, max_length=200)
-    color = models.CharField(
-        'Цветовой HEX-код',
+    """Класс тегов."""
+
+    name = models.CharField(
+        max_length=30,
         unique=True,
-        max_length=7,
-        validators=[
-            RegexValidator(
-                regex='^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$',
-                message='Введенное значение не является цветом в формате HEX!'
-            )
-        ]
+        verbose_name='Название'
     )
-    slug = models.SlugField('Уникальный слаг', unique=True, max_length=200)
+    color = models.CharField(
+        unique=True,
+        verbose_name='HEX цвет'
+    )
+    slug = models.SlugField(
+        max_length=200,
+        unique=True,
+        verbose_name='slug')
 
     class Meta:
         verbose_name = 'Тег'
@@ -43,6 +52,8 @@ class Tag(models.Model):
 
 
 class Recipe(models.Model):
+    """Класс рецептов."""
+
     name = models.CharField('Название', max_length=200)
     author = models.ForeignKey(
         User,
@@ -82,6 +93,8 @@ class Recipe(models.Model):
 
 
 class IngredientInRecipe(models.Model):
+    """Вспомогательный класс, связывающий ингредиенты и рецепты."""
+
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
@@ -91,16 +104,19 @@ class IngredientInRecipe(models.Model):
     ingredient = models.ForeignKey(
         Ingredient,
         on_delete=models.CASCADE,
+        related_name='ingredient_amounts',
         verbose_name='Ингредиент',
     )
     amount = models.PositiveSmallIntegerField(
-        'Количество',
-        validators=[MinValueValidator(1, message='Минимальное количество 1!')]
+        validators=[MinValueValidator(
+            1, 'Количество должно быть больше 0',
+        )],
+        verbose_name='Количество'
     )
 
     class Meta:
-        verbose_name = 'Ингредиент в рецепте'
-        verbose_name_plural = 'Ингредиенты в рецептах'
+        verbose_name = 'Количество ингредиента'
+        verbose_name_plural = 'Количество ингредиентов'
         constraints = [
             UniqueConstraint(fields=['ingredient', 'recipe', 'amount'],
                              name='unique_ingredient')
@@ -114,6 +130,8 @@ class IngredientInRecipe(models.Model):
 
 
 class Favourite(models.Model):
+    """Класс избранное."""
+
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -140,6 +158,8 @@ class Favourite(models.Model):
 
 
 class ShoppingCart(models.Model):
+    """Вспомогательный класс для формирования списка покупок."""
+
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,

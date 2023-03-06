@@ -9,6 +9,11 @@ class IsAdminOrReadOnly(BasePermission):
 
 
 class IsAuthorOrReadOnly(BasePermission):
+    """
+    Разрешает анонимному пользователю только безопасные запросы.
+    Полный доступ предоставляется только автору объекта и
+    суперпользователю Джанго.
+    """
 
     def has_permission(self, request, view):
         return (request.method in SAFE_METHODS

@@ -15,7 +15,7 @@
 
 ## Описание проекта
 
-Foodgram - приложение, в котором пользователи могут публиковать рецепты, добавлять чужие рецепты в избранное и подписываться на публикации других авторов. Сервис «Foodgram» позволяет пользователям создавать список продуктов, которые нужно купить для приготовления выбранных блюд.
+Foodgram - приложение для публикации рецептов различных блюд. Реализован следующий функционал: система аутентификации, просмотр рецептов, создание новых рецептов, их изменение, добавление рецептов в избранное и список покупок, выгрузка списка покупок в pdf-файл, возможность подписки на авторов рецептов. В backend-части проекта использованы следующие инструменты: Python3, Django, DjangoREST Framework, PostgreSQL Также применены: CI/CD - GitHub Actions, Docker, Nginx, YandexCloud
 
 ## Установка проекта локально
 
@@ -103,6 +103,83 @@ docker-compose exec backend python manage.py collectstatic --noinput
 ## Сайт
 После запуска проект будут доступен по адресу:
 [http://localhost/]
+
+### Workflow
+- **tests:** Проверка кода на соответствие PEP8.
+- **push Docker image to Docker Hub:** Сборка и публикация образа на DockerHub.
+- **deploy:** Автоматический деплой на боевой сервер при пуше в главную ветку main.
+- **send_massage:** Отправка уведомления в телеграм-чат.
+
+### Подготовка и запуск проекта на сервере
+
+- Клонировать проект с помощью git clone или скачать ZIP-архив.
+- Перейти в папку \foodgram-project-react\backend и выполнить команды:
+```bash
+sudo docker build -t <логин на DockerHub>/<название образа для бэкенда, какое хотите)> .
+sudo docker login
+sudo docker push <логин на DockerHub>/<название образа для бэкенда, которое написали> 
+```
+- Перейти в папку \foodgram-project-react\frontend и выполнить команды:
+```bash
+sudo docker build -t <логин на DockerHub>/<название образа для фронтэнда, какое хотите)> .
+sudo docker login
+sudo docker push <логин на DockerHub>/<название образа для фронтэнда, которое написали> 
+```
+
+- Установить docker на сервер:
+```bash
+sudo apt install docker.io 
+```
+- Установить docker-compose на сервер:
+```bash
+sudo apt-get update
+sudo apt install docker-compose
+```
+- Скопировать файл docker-compose.yml и nginx.conf из директории infra на сервер:
+```bash
+scp docker-compose.yml <username>@<host>:/home/<username>/
+scp nginx.conf <username>@<host>:/home/<username>/
+```
+- Для работы с Workflow добавить в Secrets GitHub переменные окружения:
+```
+DB_ENGINE=django.db.backends.postgresql
+DB_NAME=postgres
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+DB_HOST=db
+DB_PORT=5432
+
+DOCKER_PASSWORD=<пароль DockerHub>
+DOCKER_USERNAME=<имя пользователя DockerHub>
+
+USER=<username для подключения к серверу>
+HOST=<IP сервера>
+PASSPHRASE=<пароль для сервера, если он установлен>
+SSH_KEY=<ваш SSH ключ (для получения команда: cat ~/.ssh/id_rsa)>
+
+TELEGRAM_TO=<ID своего телеграм-аккаунта>
+TELEGRAM_TOKEN=<токен вашего бота>
+```
+- После деплоя изменений в git, дождитесь выполнения всех Actions.
+- Зайдите на боевой сервер и выполните команды:
+  * Создаем и применяем миграции
+    ```bash
+    sudo docker-compose exec backend python manage.py migrate
+    ```
+  * Подгружаем статику
+    ```bash
+    sudo docker-compose exec backend python manage.py collectstatic --no-input 
+    ```
+  * Создать суперпользователя Django
+    ```bash
+    sudo docker-compose exec backend python manage.py createsuperuser
+    ```
+  * Загрузить подготовленный список ингредиентов
+    ```bash
+    sudo docker-compose exec backend python manage.py loaddata ingredients.json
+    ```
+
+- Проект будет доступен по вашему IP-адресу.
 
 ## Документация к API
 API документация доступна по ссылке (создана с помощью redoc):
