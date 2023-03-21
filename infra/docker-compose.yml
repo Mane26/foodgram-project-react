@@ -5,13 +5,13 @@ services:
     image: postgres:13.0-alpine
     container_name: foodgram_db
     volumes:
-      - /var/lib/postgresql/data/
+      - postgres_data:/var/lib/postgresql/data/
     env_file:
       - ./.env
     restart: always
 
   backend:
-    image: foodgram_backend
+    image: backend_foodgram:v1
     restart: always
     container_name: web-server
     volumes:
@@ -24,7 +24,7 @@ services:
       - db
   
   frontend:
-    image: foodgram_backend
+    image: fronted_foodgram
     container_name: foodgram_front
     volumes:
       - ../frontend/:/app/result_build/
