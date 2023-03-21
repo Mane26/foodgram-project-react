@@ -5,13 +5,12 @@ from django.db.models import UniqueConstraint
 
 
 class User(AbstractUser):
-    """Класс пользователей."""
+    """Модель пользователей."""
 
     email = models.EmailField(
         'email address',
         max_length=254,
-        unique=True,
-        verbose_name='Email',
+        unique=True
     )
     username = models.CharField(
         max_length=150,
@@ -42,7 +41,7 @@ class User(AbstractUser):
 
 
 class Subscribe(models.Model):
-    """Класс подписчиков и автора."""
+    """Модель подписчиков и автора."""
 
     user = models.ForeignKey(
         User,

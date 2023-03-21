@@ -17,8 +17,9 @@ class UserAdmin(UserAdmin):
     )
     list_filter = ('email', 'first_name')
     search_fields = ('username', 'email')
+    empty_value_display = 'Значение отсутствует'
 
 
 @admin.register(Subscribe)
 class SubscribeAdmin(admin.ModelAdmin):
-    list_display = ('user', 'author',)
+    list_display = ('user', 'author',)    

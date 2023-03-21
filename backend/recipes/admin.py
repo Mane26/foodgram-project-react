@@ -5,30 +5,6 @@ from .models import (Favourite, Ingredient, IngredientInRecipe, Recipe,
                      ShoppingCart, Tag)
 
 
-@admin.register(Recipe)
-class RecipeAdmin(admin.ModelAdmin):
-    """Настройка раздела Recipe"""
-
-    list_display = ('name', 'id', 'author', 'added_in_favorites')
-    readonly_fields = ('added_in_favorites',)
-    list_filter = ('author', 'name', 'tags',)
-
-    @display(description='Количество в избранных')
-    def added_in_favorites(self, obj):
-        return obj.favorites.count()
-
-
-@admin.register(Ingredient)
-class IngredientAdmin(admin.ModelAdmin):
-    """
-    Настройка раздела ингредиентов в классе RecipeAdmin.
-    """
-
-    list_display = ('name', 'measurement_unit',)
-    list_filter = ('name',)
-    search_fields = ('name',)
-
-
 @admin.register(Favourite)
 class FavouriteAdmin(admin.ModelAdmin):
     """Настройки раздела избранное"""
@@ -36,16 +12,22 @@ class FavouriteAdmin(admin.ModelAdmin):
     list_display = ('user', 'recipe',)
 
 
+@admin.register(Recipe)
+class RecipeAdmin(admin.ModelAdmin):
+    """Настройка раздела Recipe"""
+
+    list_display = ('name', 'id', 'author', 'added_in_favorites')
+    readonly_fields = ('favorite_count', 'shoppingcart_count')
+    list_filter = ('author', 'name', 'tags',)
+
+    @display(description='Количество в избранных')
+    def added_in_favorites(self, obj):
+        return obj.favorites.count()
+
+
 @admin.register(ShoppingCart)
 class ShoppingCartAdmin(admin.ModelAdmin):
     list_display = ('user', 'recipe',)
-
-
-@admin.register(IngredientInRecipe)
-class IngredientInRecipe(admin.ModelAdmin):
-    """Настройки соответствия ингредиентов и рецепта"""
-
-    list_display = ('ingredient', 'recipe', 'amount',)
 
 
 @admin.register(Tag)
@@ -54,3 +36,19 @@ class TagAdmin(admin.ModelAdmin):
 
     list_display = ('name', 'color', 'slug',)
     search_fields = ('name',)
+
+@admin.register(Ingredient)
+class IngredientAdmin(admin.ModelAdmin):
+    """
+    Настройка раздела ингредиентов в классе RecipeAdmin.
+    """
+
+    search_fields = ('name',)
+    list_display = ('name', 'measurement_unit')    
+
+
+@admin.register(IngredientInRecipe)
+class IngredientInRecipe(admin.ModelAdmin):
+    """Настройки соответствия ингредиентов и рецепта"""
+
+    list_display = ('ingredient', 'recipe', 'amount',)

@@ -5,17 +5,8 @@ from recipes.models import Ingredient, Recipe, Tag
 User = get_user_model()
 
 
-FILTER_USER = {'favorites': 'favorites__user',
+filter_user = {'favorites': 'favorites__user',
                'shop_list': 'shop_list__user'}
-
-
-class IngredientFilter(FilterSet):
-    """Поиск по названию ингредиента."""
-    name = filters.CharFilter(lookup_expr='startswith')
-
-    class Meta:
-        model = Ingredient
-        fields = ['name']
 
 
 class RecipeFilter(FilterSet):
@@ -26,9 +17,9 @@ class RecipeFilter(FilterSet):
         queryset=Tag.objects.all(),
     )
 
-    is_favorited = filters.BooleanFilter(method='filter_is_favorited')
     is_in_shopping_cart = filters.BooleanFilter(
         method='filter_is_in_shopping_cart')
+    is_favorited = filters.BooleanFilter(method='filter_is_favorited')
 
     class Meta:
         model = Recipe
@@ -36,7 +27,7 @@ class RecipeFilter(FilterSet):
 
     def _get_queryset(self, queryset, name, value, model):
         if value:
-            return queryset.filter(**{FILTER_USER[model]: self.request.user})
+            return queryset.filter(**{filter_user[model]: self.request.user})
         return queryset
 
     def filter_is_favorited(self, queryset, name, value):
@@ -44,3 +35,12 @@ class RecipeFilter(FilterSet):
 
     def filter_is_in_shopping_cart(self, queryset, name, value):
         return self._get_queryset(queryset, name, value, 'shop_list')
+
+
+class IngredientFilter(FilterSet):
+    """Поиск по названию ингредиента."""
+    name = filters.CharFilter(lookup_expr='startswith')
+
+    class Meta:
+        model = Ingredient
+        fields = ['name']

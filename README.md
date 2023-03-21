@@ -39,6 +39,7 @@ python3 -m venv venv
 
 ```
 SECRET_KEY=секретный ключ django
+ALLOWED_HOSTS='ip localhost'
 DB_ENGINE=django.db.backends.postgresql
 DB_NAME=postgres
 POSTGRES_USER=postgres
