@@ -11,7 +11,7 @@ services:
     restart: always
 
   backend:
-    image: backend_foodgram:v1
+    image: narina25/backend_foodgram:v1 
     restart: always
     container_name: web-server
     volumes:
@@ -24,7 +24,7 @@ services:
       - db
   
   frontend:
-    image: fronted_foodgram
+    image: narina25/frontend_foodgram:v1
     container_name: foodgram_front
     volumes:
       - ../frontend/:/app/result_build/
