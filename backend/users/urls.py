@@ -1,13 +1,12 @@
+from api.views import CustomUserViewSet
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
-
-from  api.views import CustomUserFollowViewSet
 
 app_name = 'users'
 
 router = DefaultRouter()
 
-router.register('users', CustomUserFollowViewSet)
+router.register('users', CustomUserViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),

@@ -1,16 +1,22 @@
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import RegexValidator
 from django.db import models
-from django.db.models import UniqueConstraint
+from rest_framework.exceptions import ValidationError
+from django.utils.translation import gettext_lazy as _
 
 
 class User(AbstractUser):
-    """Модель пользователей."""
+    """Класс пользователей."""
 
     email = models.EmailField(
         'email address',
         max_length=254,
-        unique=True
+        unique=True,
+        blank=False,
+        error_messages={
+            'unique': _('Пользователь с таким email уже существует!'),
+        },
+        help_text=_('Укажите свой email'),
     )
     username = models.CharField(
         max_length=150,
@@ -19,16 +25,20 @@ class User(AbstractUser):
         db_index=True,
         validators=[RegexValidator(
             regex=r'^[\w.@+-]+$',
-            message='Имя пользователя содержит недопустимый символ'
+            message='Пользователь с таким никнеймом уже существует!'
         )]
     )
     first_name = models.CharField(
         max_length=150,
-        verbose_name='Имя'
+        verbose_name='Имя',
+        blank=True,
+        help_text=_('Укажите свою имя'),
     )
     last_name = models.CharField(
         max_length=150,
-        verbose_name='Фамилия'
+        verbose_name='Фамилия',
+        blank=True,
+        help_text=_('Укажите свою фамилию'),
     )
 
     class Meta:
@@ -41,7 +51,7 @@ class User(AbstractUser):
 
 
 class Subscribe(models.Model):
-    """Модель подписчиков и автора."""
+    """Класс подписчиков и автора."""
 
     user = models.ForeignKey(
         User,
@@ -56,11 +66,19 @@ class Subscribe(models.Model):
         on_delete=models.CASCADE,
     )
 
+    def __str__(self):
+        return f'Автор: {self.author}, подписчик: {self.user}'
+
+    def save(self, **kwargs):
+        if self.user == self.author:
+            raise ValidationError("Невозможно подписаться на себя")
+        super().save()
+
     class Meta:
-        ordering = ['-id']
-        constraints = [
-            UniqueConstraint(fields=['user', 'author'],
-                             name='unique_subscription')
-        ]
         verbose_name = 'Подписка'
         verbose_name_plural = 'Подписки'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['author', 'user'],
+                name='unique_subscriber')
+        ]

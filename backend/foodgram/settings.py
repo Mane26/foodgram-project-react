@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 
+from django.utils.translation import gettext_lazy as _
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -9,9 +10,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.environ.get('SECRET_KEY', default='your_secret_key')
 
-DEBUG = (os.environ.get('DJANGO_DEBUG_VALUE') == 'True')
+DEBUG = True
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', ['*', ])
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '*').split(' ')
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -62,17 +63,24 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'foodgram.wsgi.application'
 
-DATABASES = {
-    'default': {
-        'ENGINE': os.getenv(
-            'DB_ENGINE', default='django.db.backends.postgresql'),
-        'NAME': os.getenv('DB_NAME', default='postgres'),
-        'USER': os.getenv('POSTGRES_USER', default='postgres'),
-        'PASSWORD': os.getenv('POSTGRES_PASSWORD', default='postgres'),
-        'HOST': os.getenv('DB_HOST', default='db'),
-        'PORT': os.getenv('DB_PORT', default=5432)
+if DEBUG:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': os.getenv('DB_ENGINE', 'django.db.backends.postgresql'),
+            'NAME': os.getenv('DB_NAME', 'postgres'),
+            'USER': os.getenv('POSTGRES_USER', 'postgres'),
+            'PASSWORD': os.getenv('POSTGRES_PASSWORD', 'postgres'),
+            'HOST': os.getenv('DB_HOST', 'db'),
+            'PORT': os.getenv('DB_PORT', 5432)
+        }
+    }
 
 AUTH_USER_MODEL = 'users.User'
 
@@ -137,3 +145,5 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+EMPTY_VALUE = _('-пусто-')

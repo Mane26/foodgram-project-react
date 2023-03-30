@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
@@ -17,9 +18,12 @@ class UserAdmin(UserAdmin):
     )
     list_filter = ('email', 'first_name')
     search_fields = ('username', 'email')
-    empty_value_display = 'Значение отсутствует'
+    empty_value_display = settings.EMPTY_VALUE
 
 
 @admin.register(Subscribe)
 class SubscribeAdmin(admin.ModelAdmin):
-    list_display = ('user', 'author',)    
+    list_display = ('user', 'author',)
+    list_filter = ('user', 'author')
+    search_fields = ('author',)
+    empty_value_display = settings.EMPTY_VALUE

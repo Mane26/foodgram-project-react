@@ -15,7 +15,7 @@ services:
     restart: always
     container_name: web-server
     volumes:
-      - static_value:/app/staticfiles/
+      - static_value:/app/static/
       - media_value:/app/media/
       - redoc:/app/api/docs/
     env_file:
