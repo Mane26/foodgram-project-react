@@ -1,84 +1,72 @@
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import RegexValidator
 from django.db import models
-from rest_framework.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
 
 class User(AbstractUser):
-    """Класс пользователей."""
-
     email = models.EmailField(
-        'email address',
-        max_length=254,
+        'Email',
+        max_length=200,
         unique=True,
-        blank=False,
-        error_messages={
-            'unique': _('Пользователь с таким email уже существует!'),
-        },
-        help_text=_('Укажите свой email'),
+    )
+    password = models.CharField(
+        'password',
+        max_length=150,
     )
     username = models.CharField(
+        verbose_name=_('username'),
         max_length=150,
-        verbose_name='Имя пользователя',
         unique=True,
-        db_index=True,
         validators=[RegexValidator(
             regex=r'^[\w.@+-]+$',
-            message='Пользователь с таким никнеймом уже существует!'
-        )]
+            message='Пользователь с username существует'
+        )],
+        help_text=_('Укажите username'),
     )
     first_name = models.CharField(
-        max_length=150,
-        verbose_name='Имя',
-        blank=True,
-        help_text=_('Укажите свою имя'),
-    )
-    last_name = models.CharField(
-        max_length=150,
-        verbose_name='Фамилия',
-        blank=True,
-        help_text=_('Укажите свою фамилию'),
-    )
+        'Имя',
+        max_length=150)
 
     class Meta:
-        ordering = ['id']
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
+        ordering = ('last_name',)
 
     def __str__(self):
-        return self.username
+        return self.email
 
 
-class Subscribe(models.Model):
-    """Класс подписчиков и автора."""
-
-    user = models.ForeignKey(
-        User,
-        related_name='subscriber',
-        verbose_name="Подписчик",
-        on_delete=models.CASCADE,
-    )
+class Follow(models.Model):
+    """
+    Модель подписки пользователей друг на друга, описываем:
+    'author', 'user', 'created'.
+    """
     author = models.ForeignKey(
         User,
-        related_name='subscribing',
-        verbose_name="Автор",
         on_delete=models.CASCADE,
+        related_name='following',
+        verbose_name='author',
     )
-
-    def __str__(self):
-        return f'Автор: {self.author}, подписчик: {self.user}'
-
-    def save(self, **kwargs):
-        if self.user == self.author:
-            raise ValidationError("Невозможно подписаться на себя")
-        super().save()
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='follower',
+        verbose_name='Подписчик',
+    )
+    created = models.DateTimeField(
+        'Дата подписки',
+        auto_now_add=True)
 
     class Meta:
+        ordering = ['user']
         verbose_name = 'Подписка'
         verbose_name_plural = 'Подписки'
         constraints = [
             models.UniqueConstraint(
-                fields=['author', 'user'],
-                name='unique_subscriber')
+                fields=['user', 'author'],
+                name='unique_follower')
         ]
+
+    def __str__(self):
+        return f'{self.user} - {self.author}'
