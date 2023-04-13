@@ -64,10 +64,12 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           passphrase: ${{ secrets.PASSPHRASE }}
           script: | 
+            cd foodgram-project-react/infra
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/back_foodgram:v2.0
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/front_foodgram:v2.0
-            sudo docker-compose down 
-            sudo docker system prune -a --volumes 
+            sudo docker-compose stop 
+            sudo docker-compose rm backend
+            sudo docker-compose rm frontend
             sudo rm .env
             sudo touch .env 
             echo DB_ENGINE=${{ secrets.DB_ENGINE }} >> .env 
